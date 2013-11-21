@@ -3,7 +3,6 @@ ANDROID_TARGET = android-10
 CDIR = jni
 CSRC = $(wildcard $(CDIR)/*.c $(CDIR)/*.h)
 
-.PHONY: all clean install
 all: bin/$(APPNAME)-debug.apk
 
 bin/$(APPNAME)-debug.apk: $(CSRC)
@@ -11,6 +10,7 @@ bin/$(APPNAME)-debug.apk: $(CSRC)
 	ndk-build NDK_DEBUG=1
 	ant debug
 
+##############
 clean:
 	rm -rf bin libs obj
 	rm -f build.xml local.properties proguard-project.txt project.properties
@@ -18,3 +18,5 @@ clean:
 install: all
 	sudo adb devices
 	sudo adb install -r bin/$(APPNAME)-debug.apk
+
+.PHONY: all clean install
