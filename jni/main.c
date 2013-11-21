@@ -234,6 +234,17 @@ void android_main(struct android_app* state) {
     // Make sure glue isn't stripped.
     app_dummy();
 
+    {
+        // Init & run Haskell code.
+        int hsargc = 1;
+        char *hsargv = "q";
+        char **hsargvp = &hsargv;
+
+        hs_init(&hsargc, &hsargvp);
+        _amain();
+        // hs_exit(); /* FALLTHROUGH */
+    }
+
     memset(&engine, 0, sizeof(engine));
     state->userData = &engine;
     state->onAppCmd = engine_handle_cmd;
