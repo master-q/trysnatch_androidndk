@@ -16,7 +16,7 @@ bin/$(APPNAME)-debug.apk: $(HSBUILD)/hs_main.c $(CSRC)
 
 $(HSBUILD)/hs_main.c: $(HSSRC)
 	mkdir -p $(HSBUILD)
-	ajhc -fffi -fpthread -L ${HSLIBDIR} --include=hs_src \
+	ajhc -fffi -fpthread --include=hs_src \
 	     --tdir=$(HSBUILD) -C -o $@ $(HSDIR)/Main.hs
 
 ##############
