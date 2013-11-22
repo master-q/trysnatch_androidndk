@@ -5,10 +5,10 @@ import AndroidNdk
 
 main = return ()
 
-type FuncHandleInput =
-  Ptr AndroidApp -> Ptr AInputEvent -> IO Int
 foreign export ccall "engineHandleInput"
   engineHandleInput :: FuncHandleInput
+foreign import ccall "&engineHandleInput"
+  p_engineHandleInput :: FunPtr FuncHandleInput
 engineHandleInput :: FuncHandleInput
 engineHandleInput appP evP = aInputEventGetType evP >>= go
   where
@@ -23,3 +23,10 @@ engineHandleInput appP evP = aInputEventGetType evP >>= go
       return $ eng { engAnimating = 1
                    , engState = stat { sStateX = truncate x,
                                        sStateY = truncate y }}
+
+foreign export ccall "initAndroidAppFunc"
+  initAndroidAppFunc :: Ptr AndroidApp -> IO ()
+initAndroidAppFunc :: Ptr AndroidApp -> IO ()
+initAndroidAppFunc appP = peek appP >>= updateAndroidApp >>= poke appP
+  where
+    updateAndroidApp app = return $ app { appOnInputEvent = p_engineHandleInput }

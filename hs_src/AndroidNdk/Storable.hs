@@ -2,10 +2,15 @@
 module AndroidNdk.Storable (
   AndroidApp(..),
   AndroidEngine(..),
-  SavedState(..)
+  SavedState(..),
+  FuncHandleInput
   ) where
 import Foreign.Storable
 import Foreign.Ptr
+import AndroidNdk.Import
+
+type FuncHandleInput =
+  Ptr AndroidApp -> Ptr AInputEvent -> IO Int
 
 -- struct saved_state
 foreign import primitive "const.sizeof(struct saved_state)"
@@ -55,12 +60,18 @@ foreign import primitive "const.sizeof(struct android_app)"
   sizeOf_AndroidApp :: Int
 foreign import primitive "const.offsetof(struct android_app, userData)"
   offsetOf_AndroidApp_appUserData :: Int
-data AndroidApp = AndroidApp { appUserData :: Ptr AndroidEngine }
+foreign import primitive "const.offsetof(struct android_app, onInputEvent)"
+  offsetOf_AndroidApp_appOnInputEvent :: Int
+data AndroidApp = AndroidApp { appUserData :: Ptr AndroidEngine
+                             , appOnInputEvent :: FunPtr FuncHandleInput }
 instance Storable AndroidApp where
   sizeOf    = const sizeOf_AndroidApp
   alignment = sizeOf
   poke p app = do
     pokeByteOff p offsetOf_AndroidApp_appUserData $ appUserData app
+    pokeByteOff p offsetOf_AndroidApp_appOnInputEvent $ appOnInputEvent app
   peek p = do
     userData <- peekByteOff p offsetOf_AndroidApp_appUserData
-    return $ AndroidApp { appUserData = userData }
+    onInput <- peekByteOff p offsetOf_AndroidApp_appOnInputEvent
+    return $ AndroidApp { appUserData = userData
+                        , appOnInputEvent = onInput }

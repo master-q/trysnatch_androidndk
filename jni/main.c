@@ -127,13 +127,6 @@ static void engine_term_display(struct engine* engine) {
 }
 
 /**
- * Process the next input event.
- */
-static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) {
-    return engineHandleInput(app, event);
-}
-
-/**
  * Process the next main command.
  */
 static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
@@ -205,7 +198,7 @@ void android_main(struct android_app* state) {
     memset(&engine, 0, sizeof(engine));
     state->userData = &engine;
     state->onAppCmd = engine_handle_cmd;
-    state->onInputEvent = engine_handle_input;
+    initAndroidAppFunc(state);
     engine.app = state;
 
     // Prepare to monitor accelerometer
