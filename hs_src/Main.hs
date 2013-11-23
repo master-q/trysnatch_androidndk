@@ -1,7 +1,9 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
+import Control.Monad
 import Foreign.Ptr
 import Foreign.Storable
 import AndroidNdk
+import OpenGLES
 
 main = return ()
 
@@ -30,3 +32,19 @@ initAndroidAppFunc :: Ptr AndroidApp -> IO ()
 initAndroidAppFunc appP = peek appP >>= updateAndroidApp >>= poke appP
   where
     updateAndroidApp app = return $ app { appOnInputEvent = p_engineHandleInput }
+
+foreign export ccall "engineDrawFrame"
+  engineDrawFrame :: Ptr AndroidEngine -> IO ()
+engineDrawFrame :: Ptr AndroidEngine -> IO ()
+engineDrawFrame engP = do
+  eng <- peek engP
+  when ((engEglDisplay eng) /= nullPtr) $ do
+    let w     = fromIntegral $ engWidth eng
+        h     = fromIntegral $ engHeight eng
+        s     = engState eng
+        x     = fromIntegral $ sStateX s
+        y     = fromIntegral $ sStateY s
+        angle = sStateAngle s
+    glClearColor (x/w) angle (y/h) 1.0
+    glClear $ gLColorBufferBit
+    void $ eglSwapBuffers (engEglDisplay eng) (engEglSurface eng)
